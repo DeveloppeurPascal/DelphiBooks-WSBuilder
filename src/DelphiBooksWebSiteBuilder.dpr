@@ -4,7 +4,10 @@ uses
   System.StartUpCopy,
   FMX.Forms,
   fMain in 'fMain.pas' {fmrMain},
-  uDMAboutBoxImage in 'uDMAboutBoxImage.pas' {DMAboutBoxImage: TDataModule};
+  uDMAboutBoxImage in 'uDMAboutBoxImage.pas' {DMAboutBoxImage: TDataModule},
+  Olf.FMX.AboutDialog in '..\lib-externes\AboutDialog-Delphi-Component\sources\Olf.FMX.AboutDialog.pas',
+  Olf.FMX.AboutDialogForm in '..\lib-externes\AboutDialog-Delphi-Component\sources\Olf.FMX.AboutDialogForm.pas' {OlfAboutDialogForm},
+  u_urlOpen in '..\lib-externes\librairies\u_urlOpen.pas';
 
 {$R *.res}
 
