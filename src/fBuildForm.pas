@@ -27,18 +27,18 @@ type
     procedure btnCloseClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
   private
-    procedure LoadRepositoryDatabase(DBFolder: string;
+    procedure LoadRepositoryDatabase(RepositoryFolder: string;
       var DB: TDelphiBooksDatabase);
     procedure UpdateNewObjectsProperties(DB: TDelphiBooksDatabase);
-    procedure SaveRepositoryDatabase(DBFolder: string;
-      DB: TDelphiBooksDatabase);
+    procedure SaveRepositoryDatabase(DB: TDelphiBooksDatabase);
     procedure BuildWebSitePages(TemplateFolder, SiteFolder: string;
       DB: TDelphiBooksDatabase);
     procedure BuildWebSiteAPI(TemplateFolder, SiteFolder: string;
       DB: TDelphiBooksDatabase);
     procedure BuildWebSiteImages(DBFolder, SiteFolder: string;
       DB: TDelphiBooksDatabase);
-    procedure getFolders(var DBFolder, TemplateFolder, SiteFolder: string);
+    procedure getFolders(var RootFolder, DBFolder, TemplateFolder,
+      SiteFolder: string);
     { Déclarations privées }
   public
     { Déclarations publiques }
@@ -68,19 +68,19 @@ end;
 procedure TfrmBuildForm.Execute;
 var
   DB: TDelphiBooksDatabase;
-  DBFolder, TemplateFolder, SiteFolder: string;
+  RootFolder, DBFolder, TemplateFolder, SiteFolder: string;
 begin
   DB := nil;
   try
-    getFolders(DBFolder, TemplateFolder, SiteFolder);
+    getFolders(RootFolder, DBFolder, TemplateFolder, SiteFolder);
 
-    LoadRepositoryDatabase(DBFolder, DB);
+    LoadRepositoryDatabase(RootFolder, DB);
     try
       UpdateNewObjectsProperties(DB);
       BuildWebSitePages(TemplateFolder, SiteFolder, DB);
       BuildWebSiteAPI(TemplateFolder, SiteFolder, DB);
       BuildWebSiteImages(DBFolder, SiteFolder, DB);
-      SaveRepositoryDatabase(DBFolder, DB);
+      SaveRepositoryDatabase(DB);
     finally
       DB.free;
     end;
@@ -93,11 +93,10 @@ begin
   end;
 end;
 
-procedure TfrmBuildForm.getFolders(var DBFolder, TemplateFolder,
+procedure TfrmBuildForm.getFolders(var RootFolder, DBFolder, TemplateFolder,
   SiteFolder: string);
 var
   ProgFolder: string;
-  RootSiteRepositoryFolder: string;
 begin
   // get exe file folder
   ProgFolder := tpath.GetDirectoryName(paramstr(0));
@@ -114,23 +113,20 @@ begin
 {$ELSE}
   // the compiled exe is in /src/Win32/debug (or else)
   // the web site repository is in /lib-externes/DelphiBooks-WebSite
-  RootSiteRepositoryFolder := tpath.Combine(ProgFolder, '..');
-  RootSiteRepositoryFolder := tpath.Combine(RootSiteRepositoryFolder, '..');
-  RootSiteRepositoryFolder := tpath.Combine(RootSiteRepositoryFolder, '..');
-  RootSiteRepositoryFolder := tpath.Combine(RootSiteRepositoryFolder,
-    'lib-externes');
-  RootSiteRepositoryFolder := tpath.Combine(RootSiteRepositoryFolder,
-    'DelphiBooks-WebSite');
+  RootFolder := tpath.Combine(ProgFolder, '..');
+  RootFolder := tpath.Combine(RootFolder, '..');
+  RootFolder := tpath.Combine(RootFolder, '..');
+  RootFolder := tpath.Combine(RootFolder, 'lib-externes');
+  RootFolder := tpath.Combine(RootFolder, 'DelphiBooks-WebSite');
 {$ENDIF}
-  if RootSiteRepositoryFolder.isempty then
+  if RootFolder.isempty then
     raise exception.Create('Can''t define root repository path.');
-  if not tdirectory.Exists(RootSiteRepositoryFolder) then
-    raise exception.Create('Can''t find folder "' +
-      RootSiteRepositoryFolder + '".');
-  debuglog(RootSiteRepositoryFolder);
+  if not tdirectory.Exists(RootFolder) then
+    raise exception.Create('Can''t find folder "' + RootFolder + '".');
+  debuglog(RootFolder);
 
   // Database is in /database/datas folder in the WebSite repository
-  DBFolder := tpath.Combine(RootSiteRepositoryFolder, 'database');
+  DBFolder := tpath.Combine(RootFolder, 'database');
   DBFolder := tpath.Combine(DBFolder, 'datas');
   if DBFolder.isempty then
     raise exception.Create('Can''t define database path.');
@@ -139,7 +135,7 @@ begin
   debuglog(DBFolder);
 
   // Templates are in /site-templates/templates folder
-  TemplateFolder := tpath.Combine(RootSiteRepositoryFolder, 'site-templates');
+  TemplateFolder := tpath.Combine(RootFolder, 'site-templates');
   TemplateFolder := tpath.Combine(TemplateFolder, 'templates');
   if TemplateFolder.isempty then
     raise exception.Create('Can''t define templates path.');
@@ -148,7 +144,7 @@ begin
   debuglog(TemplateFolder);
 
   // The generated pages are in /docs folder
-  SiteFolder := tpath.Combine(RootSiteRepositoryFolder, 'docs');
+  SiteFolder := tpath.Combine(RootFolder, 'docs');
   if SiteFolder.isempty then
     raise exception.Create('Can''t define web site path.');
   if not tdirectory.Exists(SiteFolder) then
@@ -190,8 +186,7 @@ begin
 {$ENDIF}
 end;
 
-procedure TfrmBuildForm.SaveRepositoryDatabase(DBFolder: string;
-  DB: TDelphiBooksDatabase);
+procedure TfrmBuildForm.SaveRepositoryDatabase(DB: TDelphiBooksDatabase);
 begin
   // save the new objects in the repository database
   logTitle('Save the changed objects in the repository database');
@@ -207,12 +202,17 @@ begin
   log('Finished');
 end;
 
-procedure TfrmBuildForm.LoadRepositoryDatabase(DBFolder: string;
+procedure TfrmBuildForm.LoadRepositoryDatabase(RepositoryFolder: string;
   var DB: TDelphiBooksDatabase);
 begin
   // load the repository database
   logTitle('Load the repository database');
-  // TODO : à compléter
+  debuglog(RepositoryFolder);
+  DB := TDelphiBooksDatabase.CreateFromRepository(RepositoryFolder);
+  debuglog('Autors : '+DB.Authors.Count.ToString);
+  debuglog('Publishers : '+DB.Publishers.Count.ToString);
+  debuglog('Books : '+DB.Books.Count.ToString);
+  debuglog('Languages : '+DB.Languages.Count.ToString);
   log('Finished');
 end;
 
