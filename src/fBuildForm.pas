@@ -195,10 +195,56 @@ begin
 end;
 
 procedure TfrmBuildForm.UpdateNewObjectsProperties(DB: TDelphiBooksDatabase);
+var
+  NewID: integer;
 begin
   // update the missing id properties (from new objects)
   logTitle('Fill new objects IDs');
-  // TODO : à compléter
+
+  log('- New languages');
+  if DB.Languages.Count > 0 then
+    for var item in DB.Languages do
+      if item.Id = CDelphiBooksNullID then
+      begin
+        NewID := DB.Languages.GetMaxID + 1;
+        item.SetId(NewID);
+        log('Id ' + NewID.ToString + ' => ' + item.ToString + ' (GUID=' +
+          item.Guid + ')');
+      end;
+
+  log('- New authors');
+  if DB.authors.Count > 0 then
+    for var item in DB.authors do
+      if item.Id = CDelphiBooksNullID then
+      begin
+        NewID := DB.authors.GetMaxID + 1;
+        item.SetId(NewID);
+        log('Id ' + NewID.ToString + ' => ' + item.ToString + ' (GUID=' +
+          item.Guid + ')');
+      end;
+
+  log('- New publishers');
+  if DB.publishers.Count > 0 then
+    for var item in DB.publishers do
+      if item.Id = CDelphiBooksNullID then
+      begin
+        NewID := DB.publishers.GetMaxID + 1;
+        item.SetId(NewID);
+        log('Id ' + NewID.ToString + ' => ' + item.ToString + ' (GUID=' +
+          item.Guid + ')');
+      end;
+
+  log('- New books');
+  if DB.books.Count > 0 then
+    for var item in DB.books do
+      if item.Id = CDelphiBooksNullID then
+      begin
+        NewID := DB.books.GetMaxID + 1;
+        item.SetId(NewID);
+        log('Id ' + NewID.ToString + ' => ' + item.ToString + ' (GUID=' +
+          item.Guid + ')');
+      end;
+
   log('Finished');
 end;
 
@@ -209,9 +255,9 @@ begin
   logTitle('Load the repository database');
   debuglog(RepositoryFolder);
   DB := TDelphiBooksDatabase.CreateFromRepository(RepositoryFolder);
-  debuglog('Authors : ' + DB.Authors.Count.ToString);
-  debuglog('Publishers : ' + DB.Publishers.Count.ToString);
-  debuglog('Books : ' + DB.Books.Count.ToString);
+  debuglog('Authors : ' + DB.authors.Count.ToString);
+  debuglog('Publishers : ' + DB.publishers.Count.ToString);
+  debuglog('Books : ' + DB.books.Count.ToString);
   debuglog('Languages : ' + DB.Languages.Count.ToString);
   log('Finished');
 end;
