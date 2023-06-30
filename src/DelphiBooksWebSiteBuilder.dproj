@@ -284,6 +284,8 @@
         <AppDPIAwarenessMode>PerMonitorV2</AppDPIAwarenessMode>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_Locale>1033</VerInfo_Locale>
+        <Icon_MainIcon>..\design\icons\DelphiBooksAdmin.ico</Icon_MainIcon>
+        <Icns_MainIcns>..\design\icons\DelphiBooksAdmin.icns</Icns_MainIcns>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1_Win64)'!=''">
         <AppDPIAwarenessMode>PerMonitorV2</AppDPIAwarenessMode>
@@ -307,6 +309,11 @@
         <DCCReference Include="fMain.pas">
             <Form>fmrMain</Form>
             <FormType>fmx</FormType>
+        </DCCReference>
+        <DCCReference Include="uDMAboutBoxImage.pas">
+            <Form>DMAboutBoxImage</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TDataModule</DesignClass>
         </DCCReference>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>

@@ -8,4 +8,18 @@ object fmrMain: TfmrMain
   FormFactor.Height = 480
   FormFactor.Devices = [Desktop]
   DesignerMasterStyle = 0
+  object OlfAboutDialog1: TOlfAboutDialog
+    Titre = 'Delphi Books Web Site Builder'
+    VersionNumero = '1.0'
+    VersionDate = '20230630'
+    MultiResBitmap = <
+      item
+      end>
+    Images = DMAboutBoxImage.ImageList1
+    ImageIndex = 0
+    URL = 'https://delphi-books.com'
+    Langue = EN
+    Left = 472
+    Top = 96
+  end
 end
