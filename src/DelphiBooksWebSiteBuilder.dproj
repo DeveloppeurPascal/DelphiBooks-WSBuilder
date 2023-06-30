@@ -307,7 +307,7 @@
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
         <DCCReference Include="fMain.pas">
-            <Form>fmrMain</Form>
+            <Form>frmMain</Form>
             <FormType>fmx</FormType>
         </DCCReference>
         <DCCReference Include="uDMAboutBoxImage.pas">
@@ -321,6 +321,12 @@
             <FormType>fmx</FormType>
         </DCCReference>
         <DCCReference Include="..\lib-externes\librairies\u_urlOpen.pas"/>
+        <DCCReference Include="fBuildForm.pas">
+            <Form>frmBuildForm</Form>
+            <FormType>fmx</FormType>
+        </DCCReference>
+        <DCCReference Include="..\lib-externes\DelphiBooks-Common\src\DelphiBooks.Classes.pas"/>
+        <DCCReference Include="..\lib-externes\DelphiBooks-Common\src\DelphiBooks.DB.Repository.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
