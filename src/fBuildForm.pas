@@ -40,6 +40,8 @@ type
     procedure getFolders(var RootFolder, DBFolder, TemplateFolder,
       SiteFolder: string);
     { Déclarations privées }
+    procedure CreateAndSaveThumb(SiteFolder, CoverFilePath,
+      ThumbFileName: string; AWidth, AHeight: integer);
   public
     { Déclarations publiques }
     procedure debuglog(ATxt: string);
@@ -154,10 +156,43 @@ end;
 
 procedure TfrmBuildForm.BuildWebSiteImages(DBFolder, SiteFolder: string;
   DB: TDelphiBooksDatabase);
+var
+  b: tdelphibooksbook;
+  CoverFilePath, ThumbFileName: string;
 begin
   // build the images thumbs
   logTitle('Build the images');
-  // TODO : à compléter
+
+  if (DB.Books.Count > 0) then
+    for b in DB.Books do
+    begin
+      CoverFilePath := tpath.Combine(DBFolder, 'b-' + b.Guid + '.png');
+      if tfile.Exists(CoverFilePath) then
+      begin
+        ThumbFileName := b.PageName.Replace('.html',
+          TDelphiBooksDatabase.CThumbExtension);
+        CreateAndSaveThumb(SiteFolder, CoverFilePath, ThumbFileName, 100, 0);
+        CreateAndSaveThumb(SiteFolder, CoverFilePath, ThumbFileName, 150, 0);
+        CreateAndSaveThumb(SiteFolder, CoverFilePath, ThumbFileName, 200, 0);
+        CreateAndSaveThumb(SiteFolder, CoverFilePath, ThumbFileName, 300, 0);
+        CreateAndSaveThumb(SiteFolder, CoverFilePath, ThumbFileName, 400, 0);
+        CreateAndSaveThumb(SiteFolder, CoverFilePath, ThumbFileName, 500, 0);
+        CreateAndSaveThumb(SiteFolder, CoverFilePath, ThumbFileName, 0, 100);
+        CreateAndSaveThumb(SiteFolder, CoverFilePath, ThumbFileName, 0, 200);
+        CreateAndSaveThumb(SiteFolder, CoverFilePath, ThumbFileName, 0, 300);
+        CreateAndSaveThumb(SiteFolder, CoverFilePath, ThumbFileName, 0, 400);
+        CreateAndSaveThumb(SiteFolder, CoverFilePath, ThumbFileName, 0, 500);
+        CreateAndSaveThumb(SiteFolder, CoverFilePath, ThumbFileName, 100, 100);
+        CreateAndSaveThumb(SiteFolder, CoverFilePath, ThumbFileName, 200, 200);
+        CreateAndSaveThumb(SiteFolder, CoverFilePath, ThumbFileName, 300, 300);
+        CreateAndSaveThumb(SiteFolder, CoverFilePath, ThumbFileName, 400, 400);
+        CreateAndSaveThumb(SiteFolder, CoverFilePath, ThumbFileName, 500, 500);
+        CreateAndSaveThumb(SiteFolder, CoverFilePath, ThumbFileName, 130, 110);
+      end
+      else
+        logError('Missing cover picture for book ' + b.ToString);
+    end;
+
   log('Finished');
 end;
 
@@ -177,6 +212,48 @@ begin
   logTitle('Build the web pages');
   // TODO : à compléter
   log('Finished');
+end;
+
+procedure TfrmBuildForm.CreateAndSaveThumb(SiteFolder, CoverFilePath,
+  ThumbFileName: string; AWidth, AHeight: integer);
+var
+  bitmap: TBitmap;
+  ThumbFilePath: string;
+begin
+  ThumbFilePath := tpath.Combine(tpath.Combine(SiteFolder, 'covers'),
+    AWidth.ToString + 'x' + AHeight.ToString);
+  if not tdirectory.Exists(ThumbFilePath) then
+  begin
+    tdirectory.CreateDirectory(ThumbFilePath);
+    log('Created thumb directory : ' + ThumbFilePath);
+  end;
+
+  ThumbFilePath := tpath.Combine(ThumbFilePath, ThumbFileName);
+  // TODO : find a way to not erase pictures if they don't have changed
+  // if (not tfile.Exists(FichierDestination)) or
+  // (tfile.GetLastWriteTime(PhotoARedimensionner) > tfile.GetLastWriteTime
+  // (FichierDestination)) then
+
+  bitmap := TBitmap.CreateFromFile(CoverFilePath);
+  try
+    if (AWidth > 0) then
+    begin
+      if (AHeight > 0) then
+        // TODO : corriger le ratio largeur / hauteur pour gérer un stretch ou prendre un morceau de l'image
+        bitmap.Resize(AWidth, AHeight)
+      else
+        bitmap.Resize(AWidth, (bitmap.Height * AWidth) div bitmap.Width);
+    end
+    else if (AHeight > 0) then
+      bitmap.Resize((bitmap.Width * AHeight) div bitmap.Height, AHeight)
+    else
+      raise exception.Create('Unknow final thumb size for picture ' +
+        ThumbFileName);
+
+    bitmap.SaveToFile(ThumbFilePath);
+  finally
+    bitmap.free;
+  end;
 end;
 
 procedure TfrmBuildForm.debuglog(ATxt: string);
@@ -235,11 +312,11 @@ begin
       end;
 
   log('- New books');
-  if DB.books.Count > 0 then
-    for var item in DB.books do
+  if DB.Books.Count > 0 then
+    for var item in DB.Books do
       if item.Id = CDelphiBooksNullID then
       begin
-        NewID := DB.books.GetMaxID + 1;
+        NewID := DB.Books.GetMaxID + 1;
         item.SetId(NewID);
         log('Id ' + NewID.ToString + ' => ' + item.ToString + ' (GUID=' +
           item.Guid + ')');
@@ -257,7 +334,7 @@ begin
   DB := TDelphiBooksDatabase.CreateFromRepository(RepositoryFolder);
   debuglog('Authors : ' + DB.authors.Count.ToString);
   debuglog('Publishers : ' + DB.publishers.Count.ToString);
-  debuglog('Books : ' + DB.books.Count.ToString);
+  debuglog('Books : ' + DB.Books.Count.ToString);
   debuglog('Languages : ' + DB.Languages.Count.ToString);
   log('Finished');
 end;
