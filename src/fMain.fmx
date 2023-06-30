@@ -1,4 +1,4 @@
-object fmrMain: TfmrMain
+object frmMain: TfrmMain
   Left = 0
   Top = 0
   Caption = 'Delphi Books Web Site Builder'
