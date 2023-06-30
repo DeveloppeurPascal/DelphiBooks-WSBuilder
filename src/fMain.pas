@@ -3,14 +3,23 @@ unit fMain;
 interface
 
 uses
-  System.SysUtils, System.Types, System.UITypes, System.Classes,
+  System.SysUtils,
+  System.Types,
+  System.UITypes,
+  System.Classes,
   System.Variants,
-  FMX.Types, FMX.Controls, FMX.Forms, FMX.Graphics, FMX.Dialogs,
-  uDMAboutBoxImage, Olf.FMX.AboutDialog, FMX.Controls.Presentation,
+  FMX.Types,
+  FMX.Controls,
+  FMX.Forms,
+  FMX.Graphics,
+  FMX.Dialogs,
+  uDMAboutBoxImage,
+  Olf.FMX.AboutDialog,
+  FMX.Controls.Presentation,
   FMX.StdCtrls;
 
 type
-  TfmrMain = class(TForm)
+  TfrmMain = class(TForm)
     OlfAboutDialog1: TOlfAboutDialog;
     btnAbout: TButton;
     btnClose: TButton;
@@ -26,32 +35,47 @@ type
   end;
 
 var
-  fmrMain: TfmrMain;
+  frmMain: TfrmMain;
 
 implementation
 
 {$R *.fmx}
 
-uses u_urlOpen;
+uses
+  u_urlOpen,
+  fBuildForm;
 
-procedure TfmrMain.btnAboutClick(Sender: TObject);
+procedure TfrmMain.btnAboutClick(Sender: TObject);
 begin
   OlfAboutDialog1.execute;
 end;
 
-procedure TfmrMain.btnBuildClick(Sender: TObject);
+procedure TfrmMain.btnBuildClick(Sender: TObject);
+var
+  f: tfrmBuildForm;
 begin
-// TODO : à compléter
+  f := tfrmBuildForm.create(self);
+  try
+    f.showmodal;
+  finally
+    f.free;
+  end;
 end;
 
-procedure TfmrMain.btnCloseClick(Sender: TObject);
+procedure TfrmMain.btnCloseClick(Sender: TObject);
 begin
   close;
 end;
 
-procedure TfmrMain.OlfAboutDialog1URLClick(const AURL: string);
+procedure TfrmMain.OlfAboutDialog1URLClick(const AURL: string);
 begin
   url_Open_In_Browser(AURL);
 end;
+
+initialization
+
+{$IFDEF DEBUG}
+  ReportMemoryLeaksOnShutdown := true;
+{$ENDIF}
 
 end.
