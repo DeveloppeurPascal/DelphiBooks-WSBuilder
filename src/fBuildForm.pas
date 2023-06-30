@@ -190,7 +190,7 @@ procedure TfrmBuildForm.SaveRepositoryDatabase(DB: TDelphiBooksDatabase);
 begin
   // save the new objects in the repository database
   logTitle('Save the changed objects in the repository database');
-  // TODO : à compléter
+  DB.SaveToRepository;
   log('Finished');
 end;
 
@@ -209,10 +209,10 @@ begin
   logTitle('Load the repository database');
   debuglog(RepositoryFolder);
   DB := TDelphiBooksDatabase.CreateFromRepository(RepositoryFolder);
-  debuglog('Autors : '+DB.Authors.Count.ToString);
-  debuglog('Publishers : '+DB.Publishers.Count.ToString);
-  debuglog('Books : '+DB.Books.Count.ToString);
-  debuglog('Languages : '+DB.Languages.Count.ToString);
+  debuglog('Autors : ' + DB.Authors.Count.ToString);
+  debuglog('Publishers : ' + DB.Publishers.Count.ToString);
+  debuglog('Books : ' + DB.Books.Count.ToString);
+  debuglog('Languages : ' + DB.Languages.Count.ToString);
   log('Finished');
 end;
 
