@@ -209,7 +209,7 @@ begin
   logTitle('Load the repository database');
   debuglog(RepositoryFolder);
   DB := TDelphiBooksDatabase.CreateFromRepository(RepositoryFolder);
-  debuglog('Autors : ' + DB.Authors.Count.ToString);
+  debuglog('Authors : ' + DB.Authors.Count.ToString);
   debuglog('Publishers : ' + DB.Publishers.Count.ToString);
   debuglog('Books : ' + DB.Books.Count.ToString);
   debuglog('Languages : ' + DB.Languages.Count.ToString);
