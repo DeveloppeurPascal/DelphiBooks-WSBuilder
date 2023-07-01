@@ -26,6 +26,7 @@ type
     btnClose: TButton;
     procedure btnCloseClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
+    procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
   private
     procedure LoadRepositoryDatabase(RepositoryFolder: string;
       var DB: TDelphiBooksDatabase);
@@ -337,6 +338,11 @@ begin
   debuglog('Books : ' + DB.Books.Count.ToString);
   debuglog('Languages : ' + DB.Languages.Count.ToString);
   log('Finished');
+end;
+
+procedure TfrmBuildForm.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
+begin
+  CanClose := btnClose.Enabled;
 end;
 
 procedure TfrmBuildForm.FormCreate(Sender: TObject);
