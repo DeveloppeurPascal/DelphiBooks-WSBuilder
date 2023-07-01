@@ -8,7 +8,7 @@ uses
 
 procedure BuildPageFromTemplate(ADB: TDelphiBooksDatabase;
   ALang: TDelphiBooksLanguage; ATemplateFile, ADestFile: string;
-  ADataName: string = ''; AItem: TDelphiBooksItem = nil);
+  DBFolder: string; ADataName: string = ''; AItem: TDelphiBooksItem = nil);
 
 implementation
 
@@ -46,22 +46,22 @@ type
     function AsDescription: TDelphiBooksDescription;
     function AsTOC: TDelphiBooksTableOfContent;
     function AsKeyword: TDelphiBooksKeyword;
-    procedure SelectBooks(ADB: TDelphiBooksDatabase;
-      AFilterProc: TBookFilterProc);
+    procedure SelectBooks(ABooks: TDelphiBooksBooksObjectList;
+      AFilterProc: TBookFilterProc = nil);
     procedure SelectAuthors(AAuthors: TDelphiBooksAuthorsObjectList;
-      AFilterProc: TAuthorFilterProc);
+      AFilterProc: TAuthorFilterProc = nil);
     procedure SelectPublishers(APublishers: TDelphiBooksPublishersObjectList;
-      AFilterProc: TPublisherFilterProc);
+      AFilterProc: TPublisherFilterProc = nil);
     procedure SelectLanguages(ALanguages: TDelphiBooksLanguagesObjectList;
-      AFilterProc: TLanguageFilterProc);
+      AFilterProc: TLanguageFilterProc = nil);
     procedure SelectDescriptions(ADescriptions
       : TDelphiBooksDescriptionsObjectList;
-      AFilterProc: TDescriptionFilterProc);
+      AFilterProc: TDescriptionFilterProc = nil);
     procedure SelectTableOfContents(ATableOfContents
       : TDelphiBooksTableOfContentsObjectList;
-      AFilterProc: TTableOfContentFilterProc);
+      AFilterProc: TTableOfContentFilterProc = nil);
     procedure SelectKeywords(AKeywords: TDelphiBooksKeywordsObjectList;
-      AFilterProc: TKeywordFilterProc);
+      AFilterProc: TKeywordFilterProc = nil);
     Procedure Next;
     function EOF: boolean;
     constructor Create(AItem: TDelphiBooksItem = nil);
@@ -69,7 +69,7 @@ type
 
 procedure BuildPageFromTemplate(ADB: TDelphiBooksDatabase;
   ALang: TDelphiBooksLanguage; ATemplateFile, ADestFile: string;
-  ADataName: string; AItem: TDelphiBooksItem);
+  DBFolder: string; ADataName: string; AItem: TDelphiBooksItem);
 var
   Source, Destination, PrecedentFichier: string;
   DelphiBooksItemsLists: TDictionary<string, TItemsList>;
@@ -86,7 +86,6 @@ var
   AfficheBlocsPrecedents: tstack<boolean>;
   AfficheBlocEnCours: boolean;
   ListeNomTable: string;
-  sql: string;
 
   function GetQry(NomTable: string): TItemsList;
   begin
@@ -587,43 +586,77 @@ begin
 {$REGION 'listes gérées par le logiciel'}
                       if Marqueur = 'liste_livres' then
                       begin
-                        sql := 'select livres.*,langues.libelle as langue_libelle, langues.nom_page as langue_nom_page, langues.code_iso as langue_code_iso from livres, langues where livres.langue_code=langues.code order by titre';
                         ListeNomTable := 'livres';
+                        ADB.Books.SortByTitle;
+                        qry := GetQry(ListeNomTable);
+                        qry.SelectBooks(ADB.Books);
                       end
                       else if Marqueur = 'liste_livres-par_date' then
                       begin
-                        sql := 'select livres.*,langues.libelle as langue_libelle, langues.nom_page as langue_nom_page, langues.code_iso as langue_code_iso from livres, langues where livres.langue_code=langues.code order by datedesortie desc, titre';
                         ListeNomTable := 'livres';
+                        ADB.Books.SortByPublishedDateDesc;
+                        qry := GetQry(ListeNomTable);
+                        qry.SelectBooks(ADB.Books);
                       end
                       else if Marqueur = 'liste_livres_recents' then
-                      begin // que le slivres édités depuis 1 an (année glissante)
-                        sql := 'select livres.*,langues.libelle as langue_libelle, langues.nom_page as langue_nom_page, langues.code_iso as langue_code_iso from livres, langues where livres.langue_code=langues.code and livres.datedesortie>"'
-                          + DateToString8(incyear(now, -1)) +
-                          '" order by datedesortie desc, titre';
+                      begin // que les livres édités depuis 1 an (année glissante)
                         ListeNomTable := 'livres';
+                        ADB.Books.SortByPublishedDateDesc;
+                        var
+                        OneYearAgo := DateToString8(incyear(now, -1));
+                        qry := GetQry(ListeNomTable);
+                        qry.SelectBooks(ADB.Books,
+                          function(ABook: TDelphiBooksBook): boolean
+                          begin
+                            result := ABook.PublishedDateYYYYMMDD > OneYearAgo;
+                          end);
                       end
                       else if Marqueur = 'liste_livres_derniers_ajouts' then
-                      begin // que les 1' denriers (7 par ligne dans le design classique du site, donc 2 lignes)
-                        sql := 'select livres.*,langues.libelle as langue_libelle, langues.nom_page as langue_nom_page, langues.code_iso as langue_code_iso from livres, langues where livres.langue_code=langues.code order by code desc limit 0,14';
+                      begin // que les 14 derniers (7 par ligne dans le design classique du site, donc 2 lignes)
                         ListeNomTable := 'livres';
+                        ADB.Books.SortByIdDesc;
+                        var
+                          nb: byte := 0;
+                        qry := GetQry(ListeNomTable);
+                        qry.SelectBooks(ADB.Books,
+                          function(ABook: TDelphiBooksBook): boolean
+                          begin
+                            if (nb < 14) then
+                            begin
+                              result := true;
+                              inc(nb);
+                            end
+                            else
+                              result := false;
+                          end);
                       end
                       else if Marqueur = 'liste_livres_par_editeur' then
                       begin
+                        ADB.Books.SortByTitle;
                         qry := GetQry('editeurs');
-                        sql := 'select livres.*,langues.libelle as langue_libelle, langues.nom_page as langue_nom_page, langues.code_iso as langue_code_iso from livres, langues, livres_editeurs_lien where livres.langue_code=langues.code and '
-                          + 'livres.code=livres_editeurs_lien.livre_code and livres_editeurs_lien.editeur_code='
-                          + ifthen(not qry.EOF, qry.AsPublisher.id.tostring,
-                          '-1') + ' order by titre';
+                        var
+                        PubBooks := qry.AsPublisher.Books;
                         ListeNomTable := 'livres';
+                        qry := GetQry(ListeNomTable);
+                        qry.SelectBooks(ADB.Books,
+                          function(ABook: TDelphiBooksBook): boolean
+                          begin
+                            result := assigned(PubBooks.GetItemByID(ABook.id));
+                          end);
                       end
                       else if Marqueur = 'liste_livres_par_auteur' then
                       begin
+                        ADB.Books.SortByTitle;
                         qry := GetQry('auteurs');
-                        sql := 'select livres.*,langues.libelle as langue_libelle, langues.nom_page as langue_nom_page, langues.code_iso as langue_code_iso from livres, langues, livres_auteurs_lien where livres.langue_code=langues.code and '
-                          + 'livres.code=livres_auteurs_lien.livre_code and livres_auteurs_lien.auteur_code='
-                          + ifthen(not qry.EOF, qry.AsAuthor.id.tostring, '-1')
-                          + ' order by titre';
+                        var
+                        AutBooks := qry.AsAuthor.Books;
                         ListeNomTable := 'livres';
+                        qry := GetQry(ListeNomTable);
+                        qry.SelectBooks(ADB.Books,
+                          function(ABook: TDelphiBooksBook): boolean
+                          begin
+                            result := assigned(AutBooks.GetItemByID(ABook.id));
+                          end);
                       end
                       else if Marqueur = 'liste_livres_par_motcle' then
                       begin
@@ -632,51 +665,58 @@ begin
                       end
                       else if Marqueur = 'liste_livres_par_langue' then
                       begin
+                        ADB.Books.SortByTitle;
                         qry := GetQry('langues');
-                        sql := 'select livres.*,langues.libelle as langue_libelle, langues.nom_page as langue_nom_page, langues.code_iso as langue_code_iso from livres, langues where livres.langue_code=langues.code and '
-                          + 'langues.code=' + ifthen(not qry.EOF,
-                          qry.AsLanguage.id.tostring, '-1') + ' order by titre';
+                        var
+                        ISO := qry.AsLanguage.LanguageISOCode;
                         ListeNomTable := 'livres';
+                        qry := GetQry(ListeNomTable);
+                        qry.SelectBooks(ADB.Books,
+                          function(ABook: TDelphiBooksBook): boolean
+                          begin
+                            result := (ABook.LanguageISOCode = ISO);
+                          end);
                       end
-                      else if Marqueur = 'liste_commentaires_par_livre' then
-                      begin
+                      {
+                        else if Marqueur = 'liste_commentaires_par_livre' then
+                        begin
                         raise exception.Create
-                          ('"liste_commentaires_par_livre" is not available in this release');
-                      end
+                        ('"liste_commentaires_par_livre" is not available in this release');
+                        end
+                      }
                       else if Marqueur = 'liste_tabledesmatieres_par_livre' then
                       begin
                         qry := GetQry('livres');
-                        sql := 'select livres_tabledesmatieres.*,langues.libelle as langue_libelle, langues.nom_page as langue_nom_page, langues.code_iso as langue_code_iso '
-                          + 'from livres_tabledesmatieres, langues ' +
-                          'where livres_tabledesmatieres.langue_code=langues.code and '
-                          + 'livres_tabledesmatieres.livre_code=' +
-                          ifthen(not qry.EOF, qry.AsBook.id.tostring, '-1');
+                        var
+                        TOC := qry.AsBook.TOCs;
                         ListeNomTable := 'livre_tablesdesmatieres';
+                        qry := GetQry(ListeNomTable);
+                        qry.SelectTableOfContents(TOC);
                       end
                       else if Marqueur = 'liste_descriptions_par_livre' then
                       begin
                         qry := GetQry('livres');
-                        sql := 'select livres_description.*,langues.libelle as langue_libelle, langues.nom_page as langue_nom_page, langues.code_iso as langue_code_iso '
-                          + 'from livres_description, langues ' +
-                          'where livres_description.langue_code=langues.code and '
-                          + 'livres_description.livre_code=' +
-                          ifthen(not qry.EOF, qry.AsBook.id.tostring, '-1');
+                        var
+                        Desc := qry.AsBook.Descriptions;
                         ListeNomTable := 'livre_descriptions';
+                        qry := GetQry(ListeNomTable);
+                        qry.SelectDescriptions(Desc);
                       end
-                      else if Marqueur = 'liste_motscles' then
-                      begin
-                        sql := 'select * from motscles';
+                      { else if Marqueur = 'liste_motscles' then
+                        begin
+                        raise exception.Create
+                        ('not implemented in this release');
                         ListeNomTable := 'motscles';
-                      end
+                        end
+                      }
                       else if Marqueur = 'liste_motscles_par_livre' then
                       begin
                         qry := GetQry('livres');
-                        sql := 'select motscles.* ' +
-                          'from motscles, livres_motscles_lien ' +
-                          'where motscles.code=livres_motscles_lien.motcle_code and '
-                          + 'livres_motscles_lien.livre_code=' +
-                          ifthen(not qry.EOF, qry.AsBook.id.tostring, '-1');
+                        var
+                        kw := qry.AsBook.Keywords;
                         ListeNomTable := 'motscles';
+                        qry := GetQry(ListeNomTable);
+                        qry.SelectKeywords(kw);
                       end
                       {
                         // "readers" not implemented in this release
@@ -688,73 +728,80 @@ begin
                       }
                       else if Marqueur = 'liste_langues' then
                       begin
-                        sql := 'select * from langues order by libelle';
+                        ADB.Languages.SortByText;
                         ListeNomTable := 'langues';
+                        qry := GetQry(ListeNomTable);
+                        qry.SelectLanguages(ADB.Languages);
                       end
                       else if Marqueur = 'liste_editeurs' then
                       begin
-                        sql := 'select * from editeurs order by raison_sociale';
+                        ADB.Publishers.SortByCompanyName;
                         ListeNomTable := 'editeurs';
+                        qry := GetQry(ListeNomTable);
+                        qry.SelectPublishers(ADB.Publishers);
                       end
                       else if Marqueur = 'liste_editeurs_par_livre' then
                       begin
+                        ADB.Publishers.SortByCompanyName;
                         qry := GetQry('livres');
-                        sql := 'select editeurs.* ' +
-                          'from editeurs, livres_editeurs_lien ' +
-                          'where editeurs.code=livres_editeurs_lien.editeur_code and '
-                          + 'livres_editeurs_lien.livre_code=' +
-                          ifthen(not qry.EOF, qry.AsBook.id.tostring, '-1');
+                        var
+                        BookPubs := qry.AsBook.Publishers;
                         ListeNomTable := 'editeurs';
+                        qry := GetQry(ListeNomTable);
+                        qry.SelectPublishers(ADB.Publishers,
+                          function(APublisher: TDelphiBooksPublisher): boolean
+                          begin
+                            result := assigned
+                              (BookPubs.GetItemByID(APublisher.id));
+                          end);
                       end
                       else if Marqueur = 'liste_descriptions_par_editeur' then
                       begin
                         qry := GetQry('editeurs');
-                        sql := 'select editeurs_description.*,langues.libelle as langue_libelle, langues.nom_page as langue_nom_page, langues.code_iso as langue_code_iso '
-                          + 'from editeurs_description, langues ' +
-                          'where editeurs_description.langue_code=langues.code and '
-                          + 'editeurs_description.editeur_code=' +
-                          ifthen(not qry.EOF,
-                          qry.AsPublisher.id.tostring, '-1');
+                        var
+                        Desc := qry.AsPublisher.Descriptions;
                         ListeNomTable := 'editeur_descriptions';
+                        qry := GetQry(ListeNomTable);
+                        qry.SelectDescriptions(Desc);
                       end
                       else if Marqueur = 'liste_auteurs' then
                       begin
-                        sql := 'select * from auteurs order by nom,prenom,pseudo';
+                        ADB.Authors.SortByName;
                         ListeNomTable := 'auteurs';
+                        qry := GetQry(ListeNomTable);
+                        qry.SelectAuthors(ADB.Authors);
                       end
                       else if Marqueur = 'liste_auteurs_par_livre' then
                       begin
+                        ADB.Authors.SortByName;
                         qry := GetQry('livres');
-                        sql := 'select auteurs.* ' +
-                          'from auteurs, livres_auteurs_lien ' +
-                          'where auteurs.code=livres_auteurs_lien.auteur_code and '
-                          + 'livres_auteurs_lien.livre_code=' +
-                          ifthen(not qry.EOF, qry.AsBook.id.tostring, '-1');
+                        var
+                        BookAut := qry.AsBook.Authors;
                         ListeNomTable := 'auteurs';
+                        qry := GetQry(ListeNomTable);
+                        qry.SelectAuthors(ADB.Authors,
+                          function(AAuthors: TDelphiBooksAuthor): boolean
+                          begin
+                            result := assigned
+                              (BookAut.GetItemByID(AAuthors.id));
+                          end);
                       end
                       else if Marqueur = 'liste_descriptions_par_auteur' then
                       begin
                         qry := GetQry('auteurs');
-                        sql := 'select auteurs_description.*,langues.libelle as langue_libelle, langues.nom_page as langue_nom_page, langues.code_iso as langue_code_iso '
-                          + 'from auteurs_description, langues ' +
-                          'where auteurs_description.langue_code=langues.code and '
-                          + 'auteurs_description.auteur_code=' +
-                          ifthen(not qry.EOF, qry.AsAuthor.id.tostring, '-1');
+                        var
+                        Desc := qry.AsAuthor.Descriptions;
                         ListeNomTable := 'auteur_descriptions';
+                        qry := GetQry(ListeNomTable);
+                        qry.SelectDescriptions(Desc);
                       end
                       else
                         raise exception.Create('Unknown tag "' + Marqueur +
                           '" in template "' + ATemplateFile + '".');
 {$ENDREGION}
-                      if (not sql.IsEmpty) and (not ListeNomTable.IsEmpty) then
+                      if assigned(qry) and (not ListeNomTable.IsEmpty) then
                       begin
                         Listes.tryAdd(Marqueur, ListeNomTable);
-                        qry := GetQry(ListeNomTable);
-                        // TODO : à compléter
-                        // if qry.Active then
-                        // qry.close;
-                        // qry.Open(sql);
-                        // qry.First;
                         PremierElementListesPrecedentes.Push
                           (PremierElementListeEnCours);
                         PremierElementListeEnCours := true;
@@ -840,10 +887,9 @@ begin
                       else if (Marqueur = 'if livre_a_photo') then
                       begin
                         qry := GetQry('livres');
-                        // TODO : à compléter
-                        // AfficheBlocEnCours := (not qry.EOF) and
-                        // tfile.Exists(getCheminDeLaPhoto('livres',
-                        // qry.FieldByName('code').AsInteger));
+                        AfficheBlocEnCours := (not qry.EOF) and
+                          tfile.Exists(tpath.Combine(DBFolder,
+                          'b-' + qry.AsBook.Guid + '.png'));
                       end
                       {
                         // Readers are not implemented
@@ -871,10 +917,9 @@ begin
                       else if (Marqueur = 'if editeur_a_photo') then
                       begin
                         qry := GetQry('editeurs');
-                        // TODO : à compléter
-                        // AfficheBlocEnCours := (not qry.EOF) and
-                        // tfile.Exists(getCheminDeLaPhoto('editeurs',
-                        // qry.FieldByName('code').AsInteger));
+                        AfficheBlocEnCours := (not qry.EOF) and
+                          tfile.Exists(tpath.Combine(DBFolder,
+                          'p-' + qry.AsPublisher.Guid + '.png'));
                       end
                       else if (Marqueur = 'if auteur_a_url_site') then
                       begin
@@ -885,10 +930,9 @@ begin
                       else if (Marqueur = 'if auteur_a_photo') then
                       begin
                         qry := GetQry('auteurs');
-                        // TODO : à compléter
-                        // AfficheBlocEnCours := (not qry.EOF) and
-                        // tfile.Exists(getCheminDeLaPhoto('auteurs',
-                        // qry.FieldByName('code').AsInteger));
+                        AfficheBlocEnCours := (not qry.EOF) and
+                          tfile.Exists(tpath.Combine(DBFolder,
+                          'a-' + qry.AsAuthor.Guid + '.png'));
                       end
                       else
                         raise exception.Create('Unknown tag "' + Marqueur +
@@ -1023,7 +1067,7 @@ end;
 
 constructor TItemsList.Create(AItem: TDelphiBooksItem);
 begin
-  Create;
+  inherited Create;
   if assigned(AItem) then
   begin
     Add(AItem);
@@ -1046,23 +1090,23 @@ begin
 end;
 
 procedure TItemsList.SelectAuthors(AAuthors: TDelphiBooksAuthorsObjectList;
-  AFilterProc: TAuthorFilterProc);
+AFilterProc: TAuthorFilterProc);
 begin
   clear;
   if AAuthors.count > 0 then
     for var a in AAuthors do
-      if AFilterProc(a) then
+      if (not assigned(AFilterProc)) or AFilterProc(a) then
         Add(a);
   FCurrentIndex := 0;
 end;
 
-procedure TItemsList.SelectBooks(ADB: TDelphiBooksDatabase;
-  AFilterProc: TBookFilterProc);
+procedure TItemsList.SelectBooks(ABooks: TDelphiBooksBooksObjectList;
+AFilterProc: TBookFilterProc);
 begin
   clear;
-  if ADB.Books.count > 0 then
-    for var b in ADB.Books do
-      if AFilterProc(b) then
+  if ABooks.count > 0 then
+    for var b in ABooks do
+      if (not assigned(AFilterProc)) or AFilterProc(b) then
         Add(b);
   FCurrentIndex := 0;
 end;
@@ -1073,18 +1117,18 @@ begin
   clear;
   if ADescriptions.count > 0 then
     for var d in ADescriptions do
-      if AFilterProc(d) then
+      if (not assigned(AFilterProc)) or AFilterProc(d) then
         Add(d);
   FCurrentIndex := 0;
 end;
 
 procedure TItemsList.SelectKeywords(AKeywords: TDelphiBooksKeywordsObjectList;
-  AFilterProc: TKeywordFilterProc);
+AFilterProc: TKeywordFilterProc);
 begin
   clear;
   if AKeywords.count > 0 then
     for var k in AKeywords do
-      if AFilterProc(k) then
+      if (not assigned(AFilterProc)) or AFilterProc(k) then
         Add(k);
   FCurrentIndex := 0;
 end;
@@ -1095,7 +1139,7 @@ begin
   clear;
   if ALanguages.count > 0 then
     for var l in ALanguages do
-      if AFilterProc(l) then
+      if (not assigned(AFilterProc)) or AFilterProc(l) then
         Add(l);
   FCurrentIndex := 0;
 end;
@@ -1106,19 +1150,19 @@ begin
   clear;
   if APublishers.count > 0 then
     for var p in APublishers do
-      if AFilterProc(p) then
+      if (not assigned(AFilterProc)) or AFilterProc(p) then
         Add(p);
   FCurrentIndex := 0;
 end;
 
 procedure TItemsList.SelectTableOfContents(ATableOfContents
   : TDelphiBooksTableOfContentsObjectList;
-  AFilterProc: TTableOfContentFilterProc);
+AFilterProc: TTableOfContentFilterProc);
 begin
   clear;
   if ATableOfContents.count > 0 then
     for var t in ATableOfContents do
-      if AFilterProc(t) then
+      if (not assigned(AFilterProc)) or AFilterProc(t) then
         Add(t);
   FCurrentIndex := 0;
 end;
