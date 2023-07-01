@@ -327,6 +327,7 @@
         </DCCReference>
         <DCCReference Include="..\lib-externes\DelphiBooks-Common\src\DelphiBooks.Classes.pas"/>
         <DCCReference Include="..\lib-externes\DelphiBooks-Common\src\DelphiBooks.DB.Repository.pas"/>
+        <DCCReference Include="uBuilder.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

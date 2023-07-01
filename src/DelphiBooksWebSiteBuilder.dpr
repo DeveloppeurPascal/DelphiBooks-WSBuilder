@@ -10,7 +10,8 @@ uses
   u_urlOpen in '..\lib-externes\librairies\u_urlOpen.pas',
   fBuildForm in 'fBuildForm.pas' {frmBuildForm},
   DelphiBooks.Classes in '..\lib-externes\DelphiBooks-Common\src\DelphiBooks.Classes.pas',
-  DelphiBooks.DB.Repository in '..\lib-externes\DelphiBooks-Common\src\DelphiBooks.DB.Repository.pas';
+  DelphiBooks.DB.Repository in '..\lib-externes\DelphiBooks-Common\src\DelphiBooks.DB.Repository.pas',
+  uBuilder in 'uBuilder.pas';
 
 {$R *.res}
 
