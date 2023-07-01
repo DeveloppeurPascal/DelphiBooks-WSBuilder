@@ -11,7 +11,8 @@ uses
   fBuildForm in 'fBuildForm.pas' {frmBuildForm},
   DelphiBooks.Classes in '..\lib-externes\DelphiBooks-Common\src\DelphiBooks.Classes.pas',
   DelphiBooks.DB.Repository in '..\lib-externes\DelphiBooks-Common\src\DelphiBooks.DB.Repository.pas',
-  uBuilder in 'uBuilder.pas';
+  uBuilder in 'uBuilder.pas',
+  uOutilsCommuns in 'uOutilsCommuns.pas';
 
 {$R *.res}
 
