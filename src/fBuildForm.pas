@@ -230,6 +230,10 @@ begin
   end;
 
   ThumbFilePath := tpath.Combine(ThumbFilePath, ThumbFileName);
+{$IFDEF DEBUG}
+  if tfile.Exists(ThumbFilePath) then
+    exit;
+{$ENDIF}
   // TODO : find a way to not erase pictures if they don't have changed
   // if (not tfile.Exists(FichierDestination)) or
   // (tfile.GetLastWriteTime(PhotoARedimensionner) > tfile.GetLastWriteTime
