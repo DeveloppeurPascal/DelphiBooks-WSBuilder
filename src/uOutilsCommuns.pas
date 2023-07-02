@@ -36,9 +36,6 @@ function DateTimeToString14: string; overload;
 /// Ce format est utilisé dans le stockage d'infos de création et de modification dans la base de données et permettre des tris chronologiques sur l'ordre alphabétique.
 /// </summary>
 function DateTimeToString14(Const ADateTime: TDateTime): string; overload;
-/// <summary>Transforme un tableau en son équivalent JSON.
-/// </summary>
-function OpenArrayToJSONArray(a: array of const): TJSONArray;
 /// <summary>Retourne la représentation binaire (sous forme de chaîne) du nombre transmis
 /// </summary>
 function IntToBinary(const Value: Int64; const ALength: Integer = 16): String;
@@ -168,47 +165,6 @@ end;
 function DateTimeToString14(Const ADateTime: TDateTime): string;
 begin
   Result := DateToString8(ADateTime) + TimeToString6(ADateTime);
-end;
-
-function OpenArrayToJSONArray(a: array of const): TJSONArray;
-var
-  i: Integer;
-  v: TVarRec;
-begin
-  Result := TJSONArray.Create;
-  for i := low(a) to high(a) do
-  begin
-    v := a[i];
-    case v.VType of
-      vtInteger:
-        Result.AddElement(TJSONNumber.Create(v.VInteger));
-      vtBoolean:
-        Result.AddElement(TJSONBool.Create(v.VBoolean));
-      vtChar:
-        Result.AddElement(TJSONString.Create(v.VChar));
-      vtExtended:
-        Result.AddElement(TJSONNumber.Create(Extended(v.VExtended^)));
-{$IFNDEF NEXTGEN}
-      vtString:
-        Result.AddElement(TJSONString.Create(ShortString(v.VString^)));
-{$ENDIF !NEXTGEN}
-      vtWideChar:
-        Result.AddElement(TJSONString.Create(v.VWideChar));
-      vtAnsiString:
-        Result.AddElement(TJSONString.Create(AnsiString(v.VAnsiString^)));
-      vtCurrency:
-        Result.AddElement(TJSONNumber.Create(Currency(v.VCurrency^)));
-      vtWideString:
-        Result.AddElement(TJSONString.Create(WideString(v.VWideString^)));
-      vtInt64:
-        Result.AddElement(TJSONNumber.Create(Int64(v.vint64^)));
-      vtUnicodeString:
-        Result.AddElement(TJSONString.Create(string(v.VUnicodeString)));
-    else
-      raise Exception.Create
-        ('Type de donnée non géré. OpenArrayToJSONArray impossible.');
-    end;
-  end;
 end;
 
 function IntToBinary(const Value: Int64; const ALength: Integer): String;
