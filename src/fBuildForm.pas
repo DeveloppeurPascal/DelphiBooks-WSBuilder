@@ -74,6 +74,10 @@ var
   DB: TDelphiBooksDatabase;
   RootFolder, DBFolder, TemplateFolder, SiteFolder: string;
 begin
+  onErrorLog := logError;
+  onDebugLog := debuglog;
+  onLog := log;
+
   DB := nil;
   try
     getFolders(RootFolder, DBFolder, TemplateFolder, SiteFolder);
@@ -299,44 +303,46 @@ begin
     for CurLanguage in DB.Languages do
       if not CurLanguage.LanguageISOCode.isempty then
       begin
+        debuglog('Langue: ' + CurLanguage.LanguageISOCode);
+
         DestFolder := tpath.Combine(SiteFolder, CurLanguage.LanguageISOCode);
         if not tdirectory.Exists(DestFolder) then
           tdirectory.CreateDirectory(DestFolder);
-
-        BuildPageFromTemplate(DB, CurLanguage, tpath.Combine(TemplateFolder,
+        (*
+          BuildPageFromTemplate(DB, CurLanguage, tpath.Combine(TemplateFolder,
           'index_tpl.html'), tpath.Combine(DestFolder, 'index.html'), DBFolder);
 
-        BuildPageFromTemplate(DB, CurLanguage, tpath.Combine(TemplateFolder,
+          BuildPageFromTemplate(DB, CurLanguage, tpath.Combine(TemplateFolder,
           'auteurs_tpl.html'), tpath.Combine(DestFolder, 'auteurs.html'),
           DBFolder);
 
-        if DB.Authors.Count > 0 then
+          if DB.Authors.Count > 0 then
           for a in DB.Authors do
-            BuildPageFromTemplate(DB, CurLanguage, tpath.Combine(TemplateFolder,
-              'auteur_tpl.html'), tpath.Combine(DestFolder, a.PageName),
-              DBFolder, 'auteurs', a);
+          BuildPageFromTemplate(DB, CurLanguage, tpath.Combine(TemplateFolder,
+          'auteur_tpl.html'), tpath.Combine(DestFolder, a.PageName),
+          DBFolder, 'auteurs', a);
 
-        BuildPageFromTemplate(DB, CurLanguage, tpath.Combine(TemplateFolder,
+          BuildPageFromTemplate(DB, CurLanguage, tpath.Combine(TemplateFolder,
           'editeurs_tpl.html'), tpath.Combine(DestFolder, 'editeurs.html'),
           DBFolder);
 
-        if DB.Publishers.Count > 0 then
+          if DB.Publishers.Count > 0 then
           for p in DB.Publishers do
-            BuildPageFromTemplate(DB, CurLanguage, tpath.Combine(TemplateFolder,
-              'editeur_tpl.html'), tpath.Combine(DestFolder, p.PageName),
-              DBFolder, 'editeurs', p);
+          BuildPageFromTemplate(DB, CurLanguage, tpath.Combine(TemplateFolder,
+          'editeur_tpl.html'), tpath.Combine(DestFolder, p.PageName),
+          DBFolder, 'editeurs', p);
 
-        BuildPageFromTemplate(DB, CurLanguage, tpath.Combine(TemplateFolder,
+          BuildPageFromTemplate(DB, CurLanguage, tpath.Combine(TemplateFolder,
           'langues_tpl.html'), tpath.Combine(DestFolder, 'langues.html'),
           DBFolder);
 
-        if DB.Languages.Count > 0 then
+          if DB.Languages.Count > 0 then
           for l in DB.Languages do
-            BuildPageFromTemplate(DB, CurLanguage, tpath.Combine(TemplateFolder,
-              'langue_tpl.html'), tpath.Combine(DestFolder, l.PageName),
-              DBFolder, 'langues', l);
+          BuildPageFromTemplate(DB, CurLanguage, tpath.Combine(TemplateFolder,
+          'langue_tpl.html'), tpath.Combine(DestFolder, l.PageName),
+          DBFolder, 'langues', l);
 
-        {
+          {
           //"Readers" are not implemented in this project release
 
           BuildPageFromTemplate(DB, CurLanguage, tpath.Combine(TemplateFolder,
@@ -347,23 +353,23 @@ begin
           BuildPageFromTemplate(DB, CurLanguage, tpath.Combine(TemplateFolder,
           'lecteur_tpl.html'), tpath.Combine(DestFolder, r.PageName),DBFolder,
           'lecteurs', r);
-        }
+          }
 
-        BuildPageFromTemplate(DB, CurLanguage, tpath.Combine(TemplateFolder,
+          BuildPageFromTemplate(DB, CurLanguage, tpath.Combine(TemplateFolder,
           'livres_tpl.html'), tpath.Combine(DestFolder, 'livres.html'),
           DBFolder);
 
-        BuildPageFromTemplate(DB, CurLanguage, tpath.Combine(TemplateFolder,
+          BuildPageFromTemplate(DB, CurLanguage, tpath.Combine(TemplateFolder,
           'livres-par-date_tpl.html'), tpath.Combine(DestFolder,
           'livres-par-date.html'), DBFolder);
 
-        if DB.Books.Count > 0 then
+          if DB.Books.Count > 0 then
           for b in DB.Books do
-            BuildPageFromTemplate(DB, CurLanguage, tpath.Combine(TemplateFolder,
-              'livre_tpl.html'), tpath.Combine(DestFolder, b.PageName),
-              DBFolder, 'livres', b);
+          BuildPageFromTemplate(DB, CurLanguage, tpath.Combine(TemplateFolder,
+          'livre_tpl.html'), tpath.Combine(DestFolder, b.PageName),
+          DBFolder, 'livres', b);
 
-        {
+          {
           //"Keywords" are not implemented in this project release
 
           BuildPageFromTemplate(DB, CurLanguage, tpath.Combine(TemplateFolder,
@@ -374,9 +380,9 @@ begin
           BuildPageFromTemplate(DB, CurLanguage, tpath.Combine(TemplateFolder,
           'motcle_tpl.html'), tpath.Combine(DestFolder, k.PageName),
           'motscles', k);
-        }
-        // TODO : implement "keywords" pages generation when available in the database
-
+          }
+          // TODO : implement "keywords" pages generation when available in the database
+        *)
         BuildPageFromTemplate(DB, CurLanguage, tpath.Combine(TemplateFolder,
           'rss_tpl.xml'), tpath.Combine(DestFolder, 'rss.xml'), DBFolder);
 

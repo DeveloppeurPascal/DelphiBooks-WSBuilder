@@ -6,6 +6,14 @@ uses
   DelphiBooks.Classes,
   DelphiBooks.DB.Repository;
 
+type
+  TLogEvent = procedure(Txt: string) of object;
+
+var
+  onErrorLog: TLogEvent;
+  onDebugLog: TLogEvent;
+  onLog: TLogEvent;
+
 procedure BuildPageFromTemplate(ADB: TDelphiBooksDatabase;
   ALang: TDelphiBooksLanguage; ATemplateFile, ADestFile: string;
   DBFolder: string; ADataName: string = ''; AItem: TDelphiBooksItem = nil);
@@ -89,6 +97,7 @@ var
 
   function GetQry(NomTable: string): TItemsList;
   begin
+    onDebugLog('GetQry : ' + NomTable);
     if (not DelphiBooksItemsLists.TryGetValue(NomTable, result)) then
     begin
       result := TItemsList.Create;
@@ -98,6 +107,7 @@ var
 
   function RemplaceMarqueur(Marqueur: string): string;
   begin
+    onDebugLog('Tag : ' + Marqueur);
     result := '';
     if Marqueur = 'livre_code' then
     begin
@@ -542,6 +552,9 @@ var
   end;
 
 begin
+  onDebugLog('Template : ' + tpath.GetFileNameWithoutExtension(ATemplateFile));
+  if assigned(AItem) then
+    onDebugLog('Item "' + AItem.tostring + '" from "' + ADataName + '".');
   if not tfile.Exists(ATemplateFile) then
     raise exception.Create('Template file "' + ATemplateFile + '" not found.');
   try
@@ -582,7 +595,8 @@ begin
                       Source.IndexOf('$!', PosMarqueur + 2) - PosMarqueur -
                       2).ToLower;
                     if Marqueur.StartsWith('liste_') then
-                    begin // ne traite pas de listes imbriquées
+                    begin
+                      // ne traite pas de listes imbriquées
 {$REGION 'listes gérées par le logiciel'}
                       if Marqueur = 'liste_livres' then
                       begin
@@ -599,7 +613,8 @@ begin
                         qry.SelectBooks(ADB.Books);
                       end
                       else if Marqueur = 'liste_livres_recents' then
-                      begin // que les livres édités depuis 1 an (année glissante)
+                      begin
+                        // que les livres édités depuis 1 an (année glissante)
                         ListeNomTable := 'livres';
                         ADB.Books.SortByPublishedDateDesc;
                         var
@@ -612,7 +627,8 @@ begin
                           end);
                       end
                       else if Marqueur = 'liste_livres_derniers_ajouts' then
-                      begin // que les 14 derniers (7 par ligne dans le design classique du site, donc 2 lignes)
+                      begin
+                        // que les 14 derniers (7 par ligne dans le design classique du site, donc 2 lignes)
                         ListeNomTable := 'livres';
                         ADB.Books.SortByIdDesc;
                         var
@@ -821,7 +837,8 @@ begin
                           '" in template "' + ATemplateFile + '".');
                     end
                     else if Marqueur.StartsWith('/liste_') then
-                    begin // retourne en tête de liste ou continue si dernier enregistrement passé
+                    begin
+                      // retourne en tête de liste ou continue si dernier enregistrement passé
                       PosCurseur := PosMarqueur + Marqueur.length + 4;
                       if Listes.TryGetValue(Marqueur.Substring(1), ListeNomTable)
                       then
@@ -836,7 +853,8 @@ begin
                             PremierElementListeEnCours := false;
                           end
                           else
-                          begin // liste terminée
+                          begin
+                            // liste terminée
                             PosListe := ListePrecedentePosListe.Pop;
                             PremierElementListeEnCours :=
                               PremierElementListesPrecedentes.Pop;
@@ -845,7 +863,8 @@ begin
                           end;
                         end
                         else
-                        begin // liste vide donc terminée
+                        begin
+                          // liste vide donc terminée
                           PosListe := ListePrecedentePosListe.Pop;
                           PremierElementListeEnCours :=
                             PremierElementListesPrecedentes.Pop;
