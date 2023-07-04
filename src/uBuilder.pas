@@ -559,8 +559,10 @@ var
 
 begin
   onDebugLog('Template : ' + tpath.GetFileNameWithoutExtension(ATemplateFile));
+
   if assigned(AItem) then
     onDebugLog('Item "' + AItem.tostring + '" from "' + ADataName + '".');
+
   if not tfile.Exists(ATemplateFile) then
     raise exception.Create('Template file "' + ATemplateFile + '" not found.');
   try
@@ -568,6 +570,11 @@ begin
   except
     raise exception.Create('Can''t load "' + ATemplateFile + '".');
   end;
+
+  if ADestFile.IsEmpty then
+    raise exception.Create('Empty page name for "' + AItem.tostring + '" from "'
+      + ADataName + '".');
+
   DelphiBooksItemsLists := TDictionary<string, TItemsList>.Create;
   try
     if (not ADataName.IsEmpty) and assigned(AItem) then
