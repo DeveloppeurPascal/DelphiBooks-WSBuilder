@@ -3,15 +3,17 @@ object frmMain: TfrmMain
   Top = 0
   Caption = 'Delphi Books Web Site Builder'
   ClientHeight = 213
-  ClientWidth = 265
+  ClientWidth = 640
+  Position = ScreenCenter
   FormFactor.Width = 320
   FormFactor.Height = 480
   FormFactor.Devices = [Desktop]
+  OnCreate = FormCreate
   DesignerMasterStyle = 0
   object OlfAboutDialog1: TOlfAboutDialog
     Titre = 'Delphi Books Web Site Builder'
-    VersionNumero = '1.0'
-    VersionDate = '20230702'
+    VersionNumero = '1.1'
+    VersionDate = '20230704'
     MultiResBitmap = <
       item
       end>
@@ -31,11 +33,11 @@ object frmMain: TfrmMain
     Margins.Bottom = 10.000000000000000000
     Position.X = 10.000000000000000000
     Position.Y = 10.000000000000000000
-    Size.Width = 245.000000000000000000
+    Size.Width = 620.000000000000000000
     Size.Height = 48.000000000000000000
     Size.PlatformDefault = False
     TabOrder = 1
-    Text = 'About this program'
+    Text = 'Ab&out this program'
     OnClick = btnAboutClick
   end
   object btnClose: TButton
@@ -47,7 +49,7 @@ object frmMain: TfrmMain
     Margins.Bottom = 10.000000000000000000
     Position.X = 10.000000000000000000
     Position.Y = 146.000000000000000000
-    Size.Width = 245.000000000000000000
+    Size.Width = 620.000000000000000000
     Size.Height = 48.000000000000000000
     Size.PlatformDefault = False
     TabOrder = 3
@@ -63,11 +65,11 @@ object frmMain: TfrmMain
     Margins.Bottom = 10.000000000000000000
     Position.X = 10.000000000000000000
     Position.Y = 78.000000000000000000
-    Size.Width = 245.000000000000000000
+    Size.Width = 620.000000000000000000
     Size.Height = 48.000000000000000000
     Size.PlatformDefault = False
     TabOrder = 2
-    Text = 'Build'
+    Text = 'B&uild'
     OnClick = btnBuildClick
   end
 end

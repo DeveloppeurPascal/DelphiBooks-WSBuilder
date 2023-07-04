@@ -28,6 +28,7 @@ type
     procedure btnAboutClick(Sender: TObject);
     procedure OlfAboutDialog1URLClick(const AURL: string);
     procedure btnBuildClick(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
   private
     { Déclarations privées }
   public
@@ -65,6 +66,13 @@ end;
 procedure TfrmMain.btnCloseClick(Sender: TObject);
 begin
   close;
+end;
+
+procedure TfrmMain.FormCreate(Sender: TObject);
+begin
+  OlfAboutDialog1.Titre := caption;
+  caption := caption + ' v' + OlfAboutDialog1.VersionNumero + ' - ' +
+    OlfAboutDialog1.VersionDate;
 end;
 
 procedure TfrmMain.OlfAboutDialog1URLClick(const AURL: string);
