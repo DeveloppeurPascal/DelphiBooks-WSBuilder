@@ -4,6 +4,7 @@ object frmBuildForm: TfrmBuildForm
   Caption = 'Build Delphi-Books.com web site from the repository database'
   ClientHeight = 480
   ClientWidth = 640
+  Position = OwnerFormCenter
   FormFactor.Width = 320
   FormFactor.Height = 480
   FormFactor.Devices = [Desktop]
@@ -39,7 +40,10 @@ object frmBuildForm: TfrmBuildForm
     Size.Height = 48.000000000000000000
     Size.PlatformDefault = False
     TabOrder = 1
-    Text = 'Close'
+    Text = '&Close'
     OnClick = btnCloseClick
+  end
+  object AniIndicator1: TAniIndicator
+    Align = Center
   end
 end

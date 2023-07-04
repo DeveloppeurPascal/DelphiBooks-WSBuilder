@@ -24,6 +24,7 @@ type
   TfrmBuildForm = class(TForm)
     mmoLog: TMemo;
     btnClose: TButton;
+    AniIndicator1: TAniIndicator;
     procedure btnCloseClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
@@ -40,9 +41,10 @@ type
       DB: TDelphiBooksDatabase);
     procedure getFolders(var RootFolder, DBFolder, TemplateFolder,
       SiteFolder: string);
-    { Déclarations privées }
     procedure CreateAndSaveThumb(SiteFolder, CoverFilePath,
       ThumbFileName: string; AWidth, AHeight: integer);
+    procedure RemoveThumbFile(SiteFolder, CoverFilePath, ThumbFileName: string;
+      AWidth, AHeight: integer);
   public
     { Déclarations publiques }
     procedure debuglog(ATxt: string);
@@ -196,7 +198,26 @@ begin
         CreateAndSaveThumb(SiteFolder, CoverFilePath, ThumbFileName, 130, 110);
       end
       else
+      begin
         logError('Missing cover picture for book ' + b.ToString);
+        RemoveThumbFile(SiteFolder, CoverFilePath, ThumbFileName, 100, 0);
+        RemoveThumbFile(SiteFolder, CoverFilePath, ThumbFileName, 150, 0);
+        RemoveThumbFile(SiteFolder, CoverFilePath, ThumbFileName, 200, 0);
+        RemoveThumbFile(SiteFolder, CoverFilePath, ThumbFileName, 300, 0);
+        RemoveThumbFile(SiteFolder, CoverFilePath, ThumbFileName, 400, 0);
+        RemoveThumbFile(SiteFolder, CoverFilePath, ThumbFileName, 500, 0);
+        RemoveThumbFile(SiteFolder, CoverFilePath, ThumbFileName, 0, 100);
+        RemoveThumbFile(SiteFolder, CoverFilePath, ThumbFileName, 0, 200);
+        RemoveThumbFile(SiteFolder, CoverFilePath, ThumbFileName, 0, 300);
+        RemoveThumbFile(SiteFolder, CoverFilePath, ThumbFileName, 0, 400);
+        RemoveThumbFile(SiteFolder, CoverFilePath, ThumbFileName, 0, 500);
+        RemoveThumbFile(SiteFolder, CoverFilePath, ThumbFileName, 100, 100);
+        RemoveThumbFile(SiteFolder, CoverFilePath, ThumbFileName, 200, 200);
+        RemoveThumbFile(SiteFolder, CoverFilePath, ThumbFileName, 300, 300);
+        RemoveThumbFile(SiteFolder, CoverFilePath, ThumbFileName, 400, 400);
+        RemoveThumbFile(SiteFolder, CoverFilePath, ThumbFileName, 500, 500);
+        RemoveThumbFile(SiteFolder, CoverFilePath, ThumbFileName, 130, 110);
+      end;
     end;
 
   log('Finished');
@@ -413,6 +434,8 @@ begin
   if tfile.Exists(ThumbFilePath) then
     exit;
 {$ENDIF}
+  if tfile.Exists(ThumbFilePath) then
+    exit;
   // TODO : find a way to not erase pictures if they don't have changed
   // if (not tfile.Exists(FichierDestination)) or
   // (tfile.GetLastWriteTime(PhotoARedimensionner) > tfile.GetLastWriteTime
@@ -532,6 +555,9 @@ procedure TfrmBuildForm.FormCreate(Sender: TObject);
 begin
   mmoLog.lines.clear;
   btnClose.Enabled := false;
+  AniIndicator1.Visible := true;
+  AniIndicator1.Enabled := true;
+  AniIndicator1.BringToFront;
   try
     tthread.CreateAnonymousThread(
       procedure
@@ -543,11 +569,15 @@ begin
             procedure
             begin
               btnClose.Enabled := true;
+              AniIndicator1.Visible := false;
+              AniIndicator1.Enabled := false;
             end);
         end;
       end).start;
   except
     btnClose.Enabled := true;
+    AniIndicator1.Visible := false;
+    AniIndicator1.Enabled := false;
     raise;
   end;
 end;
@@ -590,6 +620,18 @@ begin
       mmoLog.lines.add('');
       mmoLog.GoToTextEnd;
     end);
+end;
+
+procedure TfrmBuildForm.RemoveThumbFile(SiteFolder, CoverFilePath,
+  ThumbFileName: string; AWidth, AHeight: integer);
+var
+  ThumbFilePath: string;
+begin
+  ThumbFilePath := tpath.Combine(tpath.Combine(SiteFolder, 'covers'),
+    AWidth.ToString + 'x' + AHeight.ToString);
+  ThumbFilePath := tpath.Combine(ThumbFilePath, ThumbFileName);
+  if tfile.Exists(ThumbFilePath) then
+    tfile.Delete(ThumbFilePath);
 end;
 
 end.
