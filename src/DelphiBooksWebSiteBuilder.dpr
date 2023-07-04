@@ -12,7 +12,7 @@ uses
   DelphiBooks.Classes in '..\lib-externes\DelphiBooks-Common\src\DelphiBooks.Classes.pas',
   DelphiBooks.DB.Repository in '..\lib-externes\DelphiBooks-Common\src\DelphiBooks.DB.Repository.pas',
   uBuilder in 'uBuilder.pas',
-  uOutilsCommuns in 'uOutilsCommuns.pas';
+  DelphiBooks.Tools in '..\lib-externes\DelphiBooks-Common\src\DelphiBooks.Tools.pas';
 
 {$R *.res}
 
