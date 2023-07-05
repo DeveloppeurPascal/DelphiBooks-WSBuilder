@@ -174,7 +174,7 @@ begin
   if (DB.Books.Count > 0) then
     for b in DB.Books do
     begin
-      CoverFilePath := tpath.Combine(DBFolder, 'b-' + b.Guid + '.png');
+      CoverFilePath := tpath.Combine(DBFolder, b.GetImageFileName);
       if tfile.Exists(CoverFilePath) then
       begin
         ThumbFileName := b.PageName.Replace('.html',

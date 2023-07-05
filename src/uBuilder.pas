@@ -952,7 +952,7 @@ begin
                         qry := GetQry('livres');
                         AfficheBlocEnCours := (not qry.EOF) and
                           tfile.Exists(tpath.Combine(DBFolder,
-                          'b-' + qry.AsBook.Guid + '.png'));
+                          qry.AsBook.GetImageFileName));
                       end
                       {
                         // Readers are not implemented
@@ -982,7 +982,7 @@ begin
                         qry := GetQry('editeurs');
                         AfficheBlocEnCours := (not qry.EOF) and
                           tfile.Exists(tpath.Combine(DBFolder,
-                          'p-' + qry.AsPublisher.Guid + '.png'));
+                          qry.AsPublisher.GetImageFileName));
                       end
                       else if (Marqueur = 'if auteur_a_url_site') then
                       begin
@@ -995,7 +995,7 @@ begin
                         qry := GetQry('auteurs');
                         AfficheBlocEnCours := (not qry.EOF) and
                           tfile.Exists(tpath.Combine(DBFolder,
-                          'a-' + qry.AsAuthor.Guid + '.png'));
+                          qry.AsAuthor.GetImageFileName));
                       end
                       else
                         raise exception.Create('Unknown tag "' + Marqueur +
