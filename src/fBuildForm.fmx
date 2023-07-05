@@ -15,6 +15,7 @@ object frmBuildForm: TfrmBuildForm
     Touch.InteractiveGestures = [Pan, LongTap, DoubleTap]
     DataDetectorTypes = []
     ReadOnly = True
+    TextSettings.WordWrap = True
     Align = Client
     Margins.Left = 10.000000000000000000
     Margins.Top = 10.000000000000000000
