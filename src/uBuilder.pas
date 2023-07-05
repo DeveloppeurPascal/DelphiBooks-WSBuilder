@@ -1041,7 +1041,7 @@ begin
                 if PrecedentFichier <> Destination then
                 begin
                   tfile.WriteAllText(ADestFile, Destination, tencoding.UTF8);
-                  onLog('Updated file : ' + ALang.LanguageISOCode + '/' +
+                  onLog('Updated file (' + ALang.LanguageISOCode + ') : ' +
                     tpath.GetFileName(ADestFile));
                 end;
               end;
