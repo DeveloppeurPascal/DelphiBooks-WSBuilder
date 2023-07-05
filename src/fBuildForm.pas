@@ -43,7 +43,7 @@ type
       SiteFolder: string);
     procedure CreateAndSaveThumb(SiteFolder, CoverFilePath,
       ThumbFileName: string; AWidth, AHeight: integer);
-    procedure RemoveThumbFile(SiteFolder, CoverFilePath, ThumbFileName: string;
+    procedure RemoveThumbFile(SiteFolder, ThumbFileName: string;
       AWidth, AHeight: integer);
   public
     { Déclarations publiques }
@@ -173,52 +173,60 @@ begin
 
   if (DB.Books.Count > 0) then
     for b in DB.Books do
-    begin
-      CoverFilePath := tpath.Combine(DBFolder, b.GetImageFileName);
-      if tfile.Exists(CoverFilePath) then
+      if b.hasNewImage then
       begin
+        CoverFilePath := tpath.Combine(DBFolder, b.GetImageFileName);
         ThumbFileName := b.PageName.Replace('.html',
           TDelphiBooksDatabase.CThumbExtension);
-        CreateAndSaveThumb(SiteFolder, CoverFilePath, ThumbFileName, 100, 0);
-        CreateAndSaveThumb(SiteFolder, CoverFilePath, ThumbFileName, 150, 0);
-        CreateAndSaveThumb(SiteFolder, CoverFilePath, ThumbFileName, 200, 0);
-        CreateAndSaveThumb(SiteFolder, CoverFilePath, ThumbFileName, 300, 0);
-        CreateAndSaveThumb(SiteFolder, CoverFilePath, ThumbFileName, 400, 0);
-        CreateAndSaveThumb(SiteFolder, CoverFilePath, ThumbFileName, 500, 0);
-        CreateAndSaveThumb(SiteFolder, CoverFilePath, ThumbFileName, 0, 100);
-        CreateAndSaveThumb(SiteFolder, CoverFilePath, ThumbFileName, 0, 200);
-        CreateAndSaveThumb(SiteFolder, CoverFilePath, ThumbFileName, 0, 300);
-        CreateAndSaveThumb(SiteFolder, CoverFilePath, ThumbFileName, 0, 400);
-        CreateAndSaveThumb(SiteFolder, CoverFilePath, ThumbFileName, 0, 500);
-        CreateAndSaveThumb(SiteFolder, CoverFilePath, ThumbFileName, 100, 100);
-        CreateAndSaveThumb(SiteFolder, CoverFilePath, ThumbFileName, 200, 200);
-        CreateAndSaveThumb(SiteFolder, CoverFilePath, ThumbFileName, 300, 300);
-        CreateAndSaveThumb(SiteFolder, CoverFilePath, ThumbFileName, 400, 400);
-        CreateAndSaveThumb(SiteFolder, CoverFilePath, ThumbFileName, 500, 500);
-        CreateAndSaveThumb(SiteFolder, CoverFilePath, ThumbFileName, 130, 110);
-      end
-      else
-      begin
-        logError('Missing cover picture for book ' + b.ToString);
-        RemoveThumbFile(SiteFolder, CoverFilePath, ThumbFileName, 100, 0);
-        RemoveThumbFile(SiteFolder, CoverFilePath, ThumbFileName, 150, 0);
-        RemoveThumbFile(SiteFolder, CoverFilePath, ThumbFileName, 200, 0);
-        RemoveThumbFile(SiteFolder, CoverFilePath, ThumbFileName, 300, 0);
-        RemoveThumbFile(SiteFolder, CoverFilePath, ThumbFileName, 400, 0);
-        RemoveThumbFile(SiteFolder, CoverFilePath, ThumbFileName, 500, 0);
-        RemoveThumbFile(SiteFolder, CoverFilePath, ThumbFileName, 0, 100);
-        RemoveThumbFile(SiteFolder, CoverFilePath, ThumbFileName, 0, 200);
-        RemoveThumbFile(SiteFolder, CoverFilePath, ThumbFileName, 0, 300);
-        RemoveThumbFile(SiteFolder, CoverFilePath, ThumbFileName, 0, 400);
-        RemoveThumbFile(SiteFolder, CoverFilePath, ThumbFileName, 0, 500);
-        RemoveThumbFile(SiteFolder, CoverFilePath, ThumbFileName, 100, 100);
-        RemoveThumbFile(SiteFolder, CoverFilePath, ThumbFileName, 200, 200);
-        RemoveThumbFile(SiteFolder, CoverFilePath, ThumbFileName, 300, 300);
-        RemoveThumbFile(SiteFolder, CoverFilePath, ThumbFileName, 400, 400);
-        RemoveThumbFile(SiteFolder, CoverFilePath, ThumbFileName, 500, 500);
-        RemoveThumbFile(SiteFolder, CoverFilePath, ThumbFileName, 130, 110);
+        if tfile.Exists(CoverFilePath) then
+        begin
+          CreateAndSaveThumb(SiteFolder, CoverFilePath, ThumbFileName, 100, 0);
+          CreateAndSaveThumb(SiteFolder, CoverFilePath, ThumbFileName, 150, 0);
+          CreateAndSaveThumb(SiteFolder, CoverFilePath, ThumbFileName, 200, 0);
+          CreateAndSaveThumb(SiteFolder, CoverFilePath, ThumbFileName, 300, 0);
+          CreateAndSaveThumb(SiteFolder, CoverFilePath, ThumbFileName, 400, 0);
+          CreateAndSaveThumb(SiteFolder, CoverFilePath, ThumbFileName, 500, 0);
+          CreateAndSaveThumb(SiteFolder, CoverFilePath, ThumbFileName, 0, 100);
+          CreateAndSaveThumb(SiteFolder, CoverFilePath, ThumbFileName, 0, 200);
+          CreateAndSaveThumb(SiteFolder, CoverFilePath, ThumbFileName, 0, 300);
+          CreateAndSaveThumb(SiteFolder, CoverFilePath, ThumbFileName, 0, 400);
+          CreateAndSaveThumb(SiteFolder, CoverFilePath, ThumbFileName, 0, 500);
+          CreateAndSaveThumb(SiteFolder, CoverFilePath, ThumbFileName,
+            100, 100);
+          CreateAndSaveThumb(SiteFolder, CoverFilePath, ThumbFileName,
+            200, 200);
+          CreateAndSaveThumb(SiteFolder, CoverFilePath, ThumbFileName,
+            300, 300);
+          CreateAndSaveThumb(SiteFolder, CoverFilePath, ThumbFileName,
+            400, 400);
+          CreateAndSaveThumb(SiteFolder, CoverFilePath, ThumbFileName,
+            500, 500);
+          CreateAndSaveThumb(SiteFolder, CoverFilePath, ThumbFileName,
+            130, 110);
+        end
+        else
+        begin
+          logError('Missing cover picture for book "' + b.ToString + '".');
+          RemoveThumbFile(SiteFolder, ThumbFileName, 100, 0);
+          RemoveThumbFile(SiteFolder, ThumbFileName, 150, 0);
+          RemoveThumbFile(SiteFolder, ThumbFileName, 200, 0);
+          RemoveThumbFile(SiteFolder, ThumbFileName, 300, 0);
+          RemoveThumbFile(SiteFolder, ThumbFileName, 400, 0);
+          RemoveThumbFile(SiteFolder, ThumbFileName, 500, 0);
+          RemoveThumbFile(SiteFolder, ThumbFileName, 0, 100);
+          RemoveThumbFile(SiteFolder, ThumbFileName, 0, 200);
+          RemoveThumbFile(SiteFolder, ThumbFileName, 0, 300);
+          RemoveThumbFile(SiteFolder, ThumbFileName, 0, 400);
+          RemoveThumbFile(SiteFolder, ThumbFileName, 0, 500);
+          RemoveThumbFile(SiteFolder, ThumbFileName, 100, 100);
+          RemoveThumbFile(SiteFolder, ThumbFileName, 200, 200);
+          RemoveThumbFile(SiteFolder, ThumbFileName, 300, 300);
+          RemoveThumbFile(SiteFolder, ThumbFileName, 400, 400);
+          RemoveThumbFile(SiteFolder, ThumbFileName, 500, 500);
+          RemoveThumbFile(SiteFolder, ThumbFileName, 130, 110);
+        end;
+        b.SetHasNewImage(false);
       end;
-    end;
 
   log('Finished');
 end;
@@ -430,16 +438,6 @@ begin
   end;
 
   ThumbFilePath := tpath.Combine(ThumbFilePath, ThumbFileName);
-{$IFDEF DEBUG}
-  if tfile.Exists(ThumbFilePath) then
-    exit;
-{$ENDIF}
-  if tfile.Exists(ThumbFilePath) then
-    exit;
-  // TODO : find a way to not erase pictures if they don't have changed
-  // if (not tfile.Exists(FichierDestination)) or
-  // (tfile.GetLastWriteTime(PhotoARedimensionner) > tfile.GetLastWriteTime
-  // (FichierDestination)) then
 
   bitmap := TBitmap.CreateFromFile(CoverFilePath);
   try
@@ -622,8 +620,8 @@ begin
     end);
 end;
 
-procedure TfrmBuildForm.RemoveThumbFile(SiteFolder, CoverFilePath,
-  ThumbFileName: string; AWidth, AHeight: integer);
+procedure TfrmBuildForm.RemoveThumbFile(SiteFolder, ThumbFileName: string;
+AWidth, AHeight: integer);
 var
   ThumbFilePath: string;
 begin
