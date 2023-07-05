@@ -26,7 +26,7 @@ uses
   System.IOUtils,
   System.Generics.Collections,
   System.StrUtils,
-  uOutilsCommuns;
+  DelphiBooks.Tools;
 
 type
   TBookFilterProc = reference to function(ABook: TDelphiBooksBook): boolean;
