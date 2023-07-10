@@ -597,7 +597,7 @@ begin
     begin
       mmoLog.lines.add('');
       mmoLog.lines.add('*****************');
-      mmoLog.lines.add('*** EXCEPTION ***');
+      mmoLog.lines.add('*** ERREUR ***');
       mmoLog.lines.add('*****************');
       mmoLog.lines.add(ATxt);
       mmoLog.lines.add('*****************');
