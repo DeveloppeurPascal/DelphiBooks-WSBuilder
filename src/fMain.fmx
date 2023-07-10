@@ -12,8 +12,8 @@ object frmMain: TfrmMain
   DesignerMasterStyle = 0
   object OlfAboutDialog1: TOlfAboutDialog
     Titre = 'Delphi Books Web Site Builder'
-    VersionNumero = '1.2'
-    VersionDate = '20230705'
+    VersionNumero = '1.3'
+    VersionDate = '20230710'
     MultiResBitmap = <
       item
       end>
