@@ -30,9 +30,8 @@ type
     procedure btnBuildClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
   private
-    { Déclarations privées }
+    procedure InitMainFormCaption;
   public
-    { Déclarations publiques }
   end;
 
 var
@@ -70,9 +69,18 @@ end;
 
 procedure TfrmMain.FormCreate(Sender: TObject);
 begin
-  OlfAboutDialog1.Titre := caption;
-  caption := caption + ' v' + OlfAboutDialog1.VersionNumero + ' - ' +
-    OlfAboutDialog1.VersionDate;
+  InitMainFormCaption;
+end;
+
+procedure TfrmMain.InitMainFormCaption;
+begin
+{$IFDEF DEBUG}
+  caption := '[DEBUG] ';
+{$ELSE}
+  caption := '';
+{$ENDIF}
+  caption := caption + OlfAboutDialog1.Titre + ' v' +
+    OlfAboutDialog1.VersionNumero;
 end;
 
 procedure TfrmMain.OlfAboutDialog1URLClick(const AURL: string);
