@@ -666,7 +666,12 @@ begin
                         try
                           LShortBooksList := qry.AsPublisher.Books;
                         except
-                          LShortBooksList := nil;
+                          on e: exception do
+                          begin
+                            onErrorLog(ALang.LanguageISOCode + ' : ' + ADestFile
+                              + slinebreak + Marqueur + slinebreak + e.Message);
+                            LShortBooksList := nil;
+                          end;
                         end;
                         ListeNomTable := 'livres';
                         qry := GetQry(ListeNomTable);
@@ -684,7 +689,12 @@ begin
                         try
                           LShortBooksList := qry.AsAuthor.Books;
                         except
-                          LShortBooksList := nil;
+                          on e: exception do
+                          begin
+                            onErrorLog(ALang.LanguageISOCode + ' : ' + ADestFile
+                              + slinebreak + Marqueur + slinebreak + e.Message);
+                            LShortBooksList := nil;
+                          end;
                         end;
                         ListeNomTable := 'livres';
                         qry := GetQry(ListeNomTable);
@@ -727,7 +737,12 @@ begin
                         try
                           LTOCsList := qry.AsBook.TOCs;
                         except
-                          LTOCsList := nil;
+                          on e: exception do
+                          begin
+                            onErrorLog(ALang.LanguageISOCode + ' : ' + ADestFile
+                              + slinebreak + Marqueur + slinebreak + e.Message);
+                            LTOCsList := nil;
+                          end;
                         end;
                         ListeNomTable := 'livre_tablesdesmatieres';
                         qry := GetQry(ListeNomTable);
@@ -739,7 +754,12 @@ begin
                         try
                           LDescriptionsList := qry.AsBook.Descriptions;
                         except
-                          LDescriptionsList := nil;
+                          on e: exception do
+                          begin
+                            onErrorLog(ALang.LanguageISOCode + ' : ' + ADestFile
+                              + slinebreak + Marqueur + slinebreak + e.Message);
+                            LDescriptionsList := nil;
+                          end;
                         end;
                         ListeNomTable := 'livre_descriptions';
                         qry := GetQry(ListeNomTable);
@@ -758,7 +778,12 @@ begin
                         try
                           LKeywordsList := qry.AsBook.Keywords;
                         except
-                          LKeywordsList := nil;
+                          on e: exception do
+                          begin
+                            onErrorLog(ALang.LanguageISOCode + ' : ' + ADestFile
+                              + slinebreak + Marqueur + slinebreak + e.Message);
+                            LKeywordsList := nil;
+                          end;
                         end;
                         ListeNomTable := 'motscles';
                         qry := GetQry(ListeNomTable);
@@ -793,7 +818,12 @@ begin
                         try
                           LShortPublishersList := qry.AsBook.Publishers;
                         except
-                          LShortPublishersList := nil;
+                          on e: exception do
+                          begin
+                            onErrorLog(ALang.LanguageISOCode + ' : ' + ADestFile
+                              + slinebreak + Marqueur + slinebreak + e.Message);
+                            LShortPublishersList := nil;
+                          end;
                         end;
                         ListeNomTable := 'editeurs';
                         qry := GetQry(ListeNomTable);
@@ -811,7 +841,12 @@ begin
                         try
                           LDescriptionsList := qry.AsPublisher.Descriptions;
                         except
-                          LDescriptionsList := nil;
+                          on e: exception do
+                          begin
+                            onErrorLog(ALang.LanguageISOCode + ' : ' + ADestFile
+                              + slinebreak + Marqueur + slinebreak + e.Message);
+                            LDescriptionsList := nil;
+                          end;
                         end;
                         ListeNomTable := 'editeur_descriptions';
                         qry := GetQry(ListeNomTable);
@@ -831,7 +866,12 @@ begin
                         try
                           LShortAuthorsList := qry.AsBook.Authors;
                         except
-                          LShortAuthorsList := nil;
+                          on e: exception do
+                          begin
+                            onErrorLog(ALang.LanguageISOCode + ' : ' + ADestFile
+                              + slinebreak + Marqueur + slinebreak + e.Message);
+                            LShortAuthorsList := nil;
+                          end;
                         end;
                         ListeNomTable := 'auteurs';
                         qry := GetQry(ListeNomTable);
@@ -849,7 +889,12 @@ begin
                         try
                           LDescriptionsList := qry.AsAuthor.Descriptions;
                         except
-                          LDescriptionsList := nil;
+                          on e: exception do
+                          begin
+                            onErrorLog(ALang.LanguageISOCode + ' : ' + ADestFile
+                              + slinebreak + Marqueur + slinebreak + e.Message);
+                            LDescriptionsList := nil;
+                          end;
                         end;
                         ListeNomTable := 'auteur_descriptions';
                         qry := GetQry(ListeNomTable);
