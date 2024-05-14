@@ -123,11 +123,7 @@ begin
 {$ELSE}
   // the compiled exe is in /src/Win32/debug (or else)
   // the web site repository is in /lib-externes/DelphiBooks-WebSite
-  RootFolder := tpath.Combine(ProgFolder, '..');
-  RootFolder := tpath.Combine(RootFolder, '..');
-  RootFolder := tpath.Combine(RootFolder, '..');
-  RootFolder := tpath.Combine(RootFolder, 'lib-externes');
-  RootFolder := tpath.Combine(RootFolder, 'DelphiBooks-WebSite');
+  RootFolder := tpath.Combine([ProgFolder, '..', '..', '..', 'lib-externes', 'DelphiBooks-WebSite']);
 {$ENDIF}
   if RootFolder.isempty then
     raise exception.Create('Can''t define root repository path.');
@@ -136,8 +132,7 @@ begin
   debuglog(RootFolder);
 
   // Database is in /database/datas folder in the WebSite repository
-  DBFolder := tpath.Combine(RootFolder, 'database');
-  DBFolder := tpath.Combine(DBFolder, 'datas');
+  DBFolder := tpath.Combine(RootFolder, 'database', 'datas');
   if DBFolder.isempty then
     raise exception.Create('Can''t define database path.');
   if not tdirectory.Exists(DBFolder) then
@@ -145,16 +140,15 @@ begin
   debuglog(DBFolder);
 
   // Templates are in /site-templates/templates folder
-  TemplateFolder := tpath.Combine(RootFolder, 'site-templates');
-  TemplateFolder := tpath.Combine(TemplateFolder, 'templates');
+  TemplateFolder := tpath.Combine(RootFolder, 'site-templates', 'templates');
   if TemplateFolder.isempty then
     raise exception.Create('Can''t define templates path.');
   if not tdirectory.Exists(TemplateFolder) then
     raise exception.Create('Can''t find folder "' + TemplateFolder + '".');
   debuglog(TemplateFolder);
 
-  // The generated pages are in /docs folder
-  SiteFolder := tpath.Combine(RootFolder, 'docs');
+  // The generated pages are in /www folder
+  SiteFolder := tpath.Combine(RootFolder, 'www');
   if SiteFolder.isempty then
     raise exception.Create('Can''t define web site path.');
   if not tdirectory.Exists(SiteFolder) then
