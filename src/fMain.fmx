@@ -20,8 +20,23 @@ object frmMain: TfrmMain
     Images = DMAboutBoxImage.ImageList1
     ImageIndex = 0
     URL = 'https://delphi-books.com'
+    Description.Strings = (
+      'WS Builder is the web pages generator for Delphi Books website.'
+      ''
+      
+        'To use it you need a database and the web site templates. See th' +
+        'e details on Delphi Books website repository at https://github.c' +
+        'om/DeveloppeurPascal/DelphiBooks-WebSite')
+    Licence.Strings = (
+      
+        'This software is supplied as is, with or without bugs. No warran' +
+        'ty is offered as to its operation or the data processed. Make ba' +
+        'ckups!'
+      ''
+      'This program is distributed as a freeware.')
     onURLClick = OlfAboutDialog1URLClick
     Langue = EN
+    Copyright = '(c) 2020-2024 Patrick Pr'#233'martin'
     Left = 24
     Top = 24
   end
