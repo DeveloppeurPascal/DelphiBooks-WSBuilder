@@ -14,9 +14,10 @@ var
   onDebugLog: TLogEvent;
   onLog: TLogEvent;
 
-procedure BuildPageFromTemplate(ADB: TDelphiBooksDatabase;
-  ALang: TDelphiBooksLanguage; ATemplateFile, ADestFile: string;
-  DBFolder: string; ADataName: string = ''; AItem: TDelphiBooksItem = nil);
+procedure BuildPageFromTemplate(Const ADB: TDelphiBooksDatabase;
+  Const ALang: TDelphiBooksLanguage; Const ATemplateFile, ADestFile: string;
+  Const DBFolder: string; Const ADataName: string = '';
+  Const AItem: TDelphiBooksItem = nil);
 
 implementation
 
@@ -75,10 +76,12 @@ type
     constructor Create(AItem: TDelphiBooksItem = nil);
   end;
 
-procedure BuildPageFromTemplate(ADB: TDelphiBooksDatabase;
-  ALang: TDelphiBooksLanguage; ATemplateFile, ADestFile: string;
-  DBFolder: string; ADataName: string; AItem: TDelphiBooksItem);
+procedure BuildPageFromTemplate(Const ADB: TDelphiBooksDatabase;
+  Const ALang: TDelphiBooksLanguage; Const ATemplateFile, ADestFile: string;
+  Const DBFolder: string; Const ADataName: string = '';
+  Const AItem: TDelphiBooksItem = nil);
 var
+  LTemplateFile: string;
   LShortBooksList: TDelphiBooksBookShortsObjectList;
   LShortAuthorsList: TDelphiBooksAuthorShortsObjectList;
   LShortPublishersList: TDelphiBooksPublisherShortsObjectList;
@@ -120,6 +123,12 @@ var
       qry := GetQry('livres');
       if (not qry.EOF) then
         result := qry.AsBook.id.tostring;
+    end
+    else if Marqueur = 'livre_datalevel' then
+    begin
+      qry := GetQry('livres');
+      if (not qry.EOF) then
+        result := qry.AsBook.DataLevel.tostring;
     end
     else if Marqueur = 'livre_titre' then
     begin
@@ -414,6 +423,12 @@ var
       if (not qry.EOF) then
         result := qry.AsPublisher.id.tostring;
     end
+    else if Marqueur = 'editeur_datalevel' then
+    begin
+      qry := GetQry('editeurs');
+      if (not qry.EOF) then
+        result := qry.AsPublisher.DataLevel.tostring;
+    end
     else if Marqueur = 'editeur_raison_sociale' then
     begin
       qry := GetQry('editeurs');
@@ -470,6 +485,12 @@ var
       qry := GetQry('auteurs');
       if (not qry.EOF) then
         result := qry.AsAuthor.id.tostring;
+    end
+    else if Marqueur = 'auteur_datalevel' then
+    begin
+      qry := GetQry('auteurs');
+      if (not qry.EOF) then
+        result := qry.AsAuthor.DataLevel.tostring;
     end
     else if Marqueur = 'auteur_nom' then
     begin
@@ -554,21 +575,26 @@ var
     end
     else
       raise exception.Create('Unknown tag "' + Marqueur + '" in template "' +
-        ATemplateFile + '".');
+        LTemplateFile + '".');
   end;
 
 begin
-  onDebugLog('Template : ' + tpath.GetFileNameWithoutExtension(ATemplateFile));
+  LTemplateFile := tpath.combine(tpath.GetDirectoryName(ATemplateFile),
+    ALang.LanguageISOCode, tpath.GetFileName(ATemplateFile));
+  if not tfile.Exists(LTemplateFile) then
+    LTemplateFile := ATemplateFile;
+
+  onDebugLog('Template : ' + tpath.GetFileNameWithoutExtension(LTemplateFile));
 
   if assigned(AItem) then
     onDebugLog('Item "' + AItem.tostring + '" from "' + ADataName + '".');
 
-  if not tfile.Exists(ATemplateFile) then
-    raise exception.Create('Template file "' + ATemplateFile + '" not found.');
+  if not tfile.Exists(LTemplateFile) then
+    raise exception.Create('Template file "' + LTemplateFile + '" not found.');
   try
-    Source := tfile.ReadAllText(ATemplateFile, tencoding.UTF8);
+    Source := tfile.ReadAllText(LTemplateFile, tencoding.UTF8);
   except
-    raise exception.Create('Can''t load "' + ATemplateFile + '".');
+    raise exception.Create('Can''t load "' + LTemplateFile + '".');
   end;
 
   if ADestFile.IsEmpty then
@@ -902,7 +928,7 @@ begin
                       end
                       else
                         raise exception.Create('Unknown tag "' + Marqueur +
-                          '" in template "' + ATemplateFile + '".');
+                          '" in template "' + LTemplateFile + '".');
 {$ENDREGION}
                       if assigned(qry) and (not ListeNomTable.IsEmpty) then
                       begin
@@ -923,7 +949,7 @@ begin
                       else
                         // Liste non gérée ou problème
                         raise exception.Create('Unknown tag "' + Marqueur +
-                          '" in template "' + ATemplateFile + '".');
+                          '" in template "' + LTemplateFile + '".');
                     end
                     else if Marqueur.StartsWith('/liste_') then
                     begin
@@ -996,7 +1022,7 @@ begin
                       begin
                         qry := GetQry('livres');
                         AfficheBlocEnCours := (not qry.EOF) and
-                          tfile.Exists(tpath.Combine(DBFolder,
+                          tfile.Exists(tpath.combine(DBFolder,
                           qry.AsBook.GetImageFileName));
                       end
                       {
@@ -1026,7 +1052,7 @@ begin
                       begin
                         qry := GetQry('editeurs');
                         AfficheBlocEnCours := (not qry.EOF) and
-                          tfile.Exists(tpath.Combine(DBFolder,
+                          tfile.Exists(tpath.combine(DBFolder,
                           qry.AsPublisher.GetImageFileName));
                       end
                       else if (Marqueur = 'if auteur_a_url_site') then
@@ -1039,12 +1065,12 @@ begin
                       begin
                         qry := GetQry('auteurs');
                         AfficheBlocEnCours := (not qry.EOF) and
-                          tfile.Exists(tpath.Combine(DBFolder,
+                          tfile.Exists(tpath.combine(DBFolder,
                           qry.AsAuthor.GetImageFileName));
                       end
                       else
                         raise exception.Create('Unknown tag "' + Marqueur +
-                          '" in template "' + ATemplateFile + '".');
+                          '" in template "' + LTemplateFile + '".');
 {$ENDREGION}
                       // On n'accepte l'affichage que si le bloc précédent (donc celui dans lequel on se trouve) était déjà affichable
                       AfficheBlocEnCours := AfficheBlocsPrecedents.Peek and
